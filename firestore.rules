@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net: deny all by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Questions collection - publicly readable and writable (for admin operations without auth)
+    match /questions/{questionId} {
+      allow read, write: if true;
+    }
+
+    // Submissions collection - publicly readable and writable for test-taking and scoreboard check
+    match /submissions/{submissionId} {
+      allow read, write: if true;
+    }
+
+    // Settings collection - configuration settings
+    match /settings/{settingId} {
+      allow read, write: if true;
+    }
+  }
+}

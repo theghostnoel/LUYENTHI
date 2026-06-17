@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "Question": {
+      "title": "Question",
+      "description": "Each exam question stored in the question bank.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "text": { "type": "string" },
+        "options": { "type": "array" },
+        "correctAnswer": { "type": "string" },
+        "points": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "type", "text"]
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "Each candidate exam submission complete with answers, score, and timestamps.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "zaloName": { "type": "string" },
+        "email": { "type": "string" },
+        "score": { "type": "number" },
+        "submittedAt": { "type": "string" },
+        "responses": { "type": "array" },
+        "breakdown": { "type": "array" }
+      },
+      "required": ["id", "zaloName", "email", "score", "submittedAt"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "Global settings such as release status, timers, and active locks.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "isScoresPublic": { "type": "boolean" },
+        "isExamClosed": { "type": "boolean" },
+        "examDurationMinutes": { "type": "number" },
+        "communityLink": { "type": "string" },
+        "communityImageUrl": { "type": "string" }
+      },
+      "required": ["id", "isScoresPublic", "isExamClosed", "examDurationMinutes"]
+    }
+  },
+  "firestore": {
+    "questions/{questionId}": {
+      "schema": "Question",
+      "description": "The shared pool of system questions."
+    },
+    "submissions/{submissionId}": {
+      "schema": "Submission",
+      "description": "Candidate submission records."
+    },
+    "settings/{settingId}": {
+      "schema": "Setting",
+      "description": "Shared configurations."
+    }
+  }
+}
