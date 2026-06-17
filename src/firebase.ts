@@ -73,12 +73,33 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
 }
 
 /**
+ * Remove any undefined properties deeply to prevent Firestore setDoc write errors
+ */
+function cleanUndefinedProps<T>(obj: T): T {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(cleanUndefinedProps) as unknown as T;
+  }
+  const result = { ...obj } as any;
+  for (const key in result) {
+    if (result[key] === undefined) {
+      delete result[key];
+    } else if (result[key] !== null && typeof result[key] === 'object') {
+      result[key] = cleanUndefinedProps(result[key]);
+    }
+  }
+  return result;
+}
+
+/**
  * Persist or update a single question in Firestore
  */
 export async function syncSaveQuestion(question: Question) {
   try {
     const qDocRef = doc(db, 'questions', question.id);
-    await setDoc(qDocRef, question);
+    await setDoc(qDocRef, cleanUndefinedProps(question));
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, `questions/${question.id}`);
   }
@@ -102,7 +123,7 @@ export async function syncDeleteQuestion(id: string) {
 export async function syncAddSubmission(submission: CandidateSubmission) {
   try {
     const subDocRef = doc(db, 'submissions', submission.id);
-    await setDoc(subDocRef, submission);
+    await setDoc(subDocRef, cleanUndefinedProps(submission));
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, `submissions/${submission.id}`);
   }
@@ -148,7 +169,7 @@ export async function syncSeedQuestions(questions: Question[]) {
     const batch = writeBatch(db);
     questions.forEach((q) => {
       const qDocRef = doc(db, 'questions', q.id);
-      batch.set(qDocRef, q);
+      batch.set(qDocRef, cleanUndefinedProps(q));
     });
     await batch.commit();
   } catch (err) {
@@ -164,7 +185,7 @@ export async function syncSeedSubmissions(submissions: CandidateSubmission[]) {
     const batch = writeBatch(db);
     submissions.forEach((sub) => {
       const sDocRef = doc(db, 'submissions', sub.id);
-      batch.set(sDocRef, sub);
+      batch.set(sDocRef, cleanUndefinedProps(sub));
     });
     await batch.commit();
   } catch (err) {
@@ -177,10 +198,11 @@ export async function syncSeedSubmissions(submissions: CandidateSubmission[]) {
  */
 export async function syncUpdateSettings(isScoresPublic: boolean, systemSettings: SystemSettings) {
   try {
-    await setDoc(settingsDoc, {
+    const data = {
       isScoresPublic,
       systemSettings
-    }, { merge: true });
+    };
+    await setDoc(settingsDoc, cleanUndefinedProps(data), { merge: true });
   } catch (err) {
     handleFirestoreError(err, OperationType.WRITE, 'settings/global');
   }
