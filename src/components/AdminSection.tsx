@@ -99,7 +99,7 @@ export default function AdminSection({
   const [expandedSubmissionId, setExpandedSubmissionId] = useState<string | null>(null);
 
   // System Configurations States
-  const [durationInput, setDurationInput] = useState(systemSettings.examDurationMinutes);
+  const [durationInput, setDurationInput] = useState<number | string>(systemSettings.examDurationMinutes);
   const [imageUrlInput, setImageUrlInput] = useState(systemSettings.communityImageUrl || '');
   const [linkInput, setLinkInput] = useState(systemSettings.communityLink || '');
   const [isClosedInput, setIsClosedInput] = useState(systemSettings.isExamClosed);
@@ -516,13 +516,13 @@ export default function AdminSection({
                       </label>
                       <input 
                         type="number"
-                        min="1"
-                        max="180"
+                        step="any"
+                        min="0.0001"
                         value={durationInput}
-                        onChange={(e) => setDurationInput(Number(e.target.value))}
+                        onChange={(e) => setDurationInput(e.target.value === "" ? "" : Number(e.target.value))}
                         className="w-full max-w-xs bg-[#030712]/50 border border-white/10 rounded-xl px-3 py-2 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 text-xs transition-all"
                       />
-                      <p className="text-[10px] text-slate-500 mt-1">Lưu ý: Mặc định là 30 phút. Nhập từ 1 đến 180 phút.</p>
+                      <p className="text-[10px] text-slate-500 mt-1">Lưu ý: Tùy chỉnh số phút tùy ý (không giới hạn, ví dụ: 0.25, 30, 120,...).</p>
                     </div>
 
                     <div className="pt-2 border-t border-white/[0.05]">
