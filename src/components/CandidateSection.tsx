@@ -22,7 +22,8 @@ import {
   RefreshCw,
   LogOut,
   Trophy,
-  Award
+  Award,
+  Phone
 } from 'lucide-react';
 import { Question, QuestionType, CandidateResponse, CandidateSubmission, SystemSettings } from '../types';
 import { calculateQuestionScore } from '../utils';
@@ -30,7 +31,7 @@ import { calculateQuestionScore } from '../utils';
 interface CandidateSectionProps {
   questions: Question[];
   isScoresPublic: boolean;
-  onSubmitExam: (zaloName: string, email: string, responses: CandidateResponse[]) => void;
+  onSubmitExam: (zaloName: string, email: string, phoneNumber: string, responses: CandidateResponse[]) => void;
   submissions: CandidateSubmission[];
   systemSettings: SystemSettings;
 }
@@ -45,8 +46,10 @@ export default function CandidateSection({
   // Candidate info
   const [email, setEmail] = useState('');
   const [zaloName, setZaloName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [emailError, setEmailError] = useState('');
   const [zaloError, setZaloError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
 
   // App phase state
   const [gameState, setGameState] = useState<'welcome' | 'exam' | 'submitted'>('welcome');
@@ -91,8 +94,10 @@ export default function CandidateSection({
     if (submissions.length === 0) {
       setEmail('');
       setZaloName('');
+      setPhoneNumber('');
       setEmailError('');
       setZaloError('');
+      setPhoneError('');
       setLookupEmail('');
       setLookupResult(null);
       setLookupSearched(false);
@@ -151,6 +156,19 @@ export default function CandidateSection({
       isValid = false;
     } else {
       setZaloError('');
+    }
+
+    // Phone Number validation
+    const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+    const cleanPhone = phoneNumber.replace(/[\s\.\-\(\)]/g, '');
+    if (!phoneNumber.trim()) {
+      setPhoneError('Vui lòng nhập Số điện thoại.');
+      isValid = false;
+    } else if (!phoneRegex.test(cleanPhone)) {
+      setPhoneError('Số điện thoại không hợp lệ (Ví dụ: 0912345678, gồm 10 chữ số).');
+      isValid = false;
+    } else {
+      setPhoneError('');
     }
 
     return isValid;
@@ -261,13 +279,13 @@ export default function CandidateSection({
   // Submission handles
   const handleAutoSubmit = () => {
     setTimerActive(false);
-    onSubmitExam(zaloName, email, responses);
+    onSubmitExam(zaloName, email, phoneNumber, responses);
     setGameState('submitted');
   };
 
   const verifyAndSubmit = () => {
     setTimerActive(false);
-    onSubmitExam(zaloName, email, responses);
+    onSubmitExam(zaloName, email, phoneNumber, responses);
     setShowSubmitModal(false);
     setGameState('submitted');
   };
@@ -555,8 +573,34 @@ export default function CandidateSection({
                       )}
                     </div>
 
+                    <div>
+                      <label className="block text-slate-300 text-sm font-medium mb-1.5">
+                        Số điện thoại <span className="text-rose-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+                        <input 
+                          id="candidate-phone"
+                          type="tel"
+                          placeholder="Ví dụ: 0912345678"
+                          value={phoneNumber}
+                          onChange={(e) => {
+                            setPhoneNumber(e.target.value);
+                            if (phoneError) setPhoneError('');
+                          }}
+                          className="w-full bg-[#030712]/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 text-sm transition-all"
+                        />
+                      </div>
+                      {phoneError && (
+                        <p className="text-rose-400 text-xs mt-1.5 flex items-center gap-1.5 font-mono">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          {phoneError}
+                        </p>
+                      )}
+                    </div>
+
                     <p className="text-xs text-slate-500 leading-relaxed pt-2">
-                      * Thông tin Email và Tên Zalo sẽ được dùng cho việc thống kê điểm số trên bảng xếp hạng (Leaderboard) của hệ thống.
+                      * Thông tin Email, Tên Zalo và Số điện thoại sẽ được dùng cho việc liên hệ và thống kê điểm số trên bảng xếp hạng (Leaderboard) của hệ thống.
                     </p>
 
                     <button 
@@ -951,7 +995,7 @@ export default function CandidateSection({
               </p>
               <div className="h-px bg-white/[0.06] w-1/3 mx-auto"></div>
               <p className="text-sm text-emerald-400 leading-relaxed">
-                Bài thi của thí sinh <strong className="text-slate-100">{zaloName}</strong> ({email}) đã được hệ thống tiếp nhận và lưu cơ sở dữ liệu.
+                Bài thi của thí sinh <strong className="text-slate-100">{zaloName}</strong> ({email} - {phoneNumber}) đã được hệ thống tiếp nhận và lưu cơ sở dữ liệu.
               </p>
             </div>
 

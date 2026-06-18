@@ -739,7 +739,8 @@ export default function AdminSection({
                       <tr>
                         <th className="px-6 py-4 font-bold text-center w-16">Hạng</th>
                         <th className="px-6 py-4 font-bold">Thí sinh</th>
-                        <th className="px-6 py-4 font-bold">Email đăng ký</th>
+                        <th className="px-6 py-4 font-bold">Email</th>
+                        <th className="px-6 py-4 font-bold">Số điện thoại (SĐT)</th>
                         <th className="px-6 py-4 font-bold text-center">Tổng Điểm</th>
                         <th className="px-6 py-4 font-bold">Thời gian nộp</th>
                         <th className="px-6 py-4 font-bold text-center w-24">Chi tiết</th>
@@ -773,6 +774,9 @@ export default function AdminSection({
                               <td className="px-6 py-4 font-mono text-xs text-slate-400">
                                 {sub.email}
                               </td>
+                              <td className="px-6 py-4 font-mono text-xs text-emerald-400 font-semibold">
+                                {sub.phoneNumber || '—'}
+                              </td>
                               <td className="px-6 py-4 text-center">
                                 <span className="font-mono font-bold text-[15px] text-emerald-400">
                                   {sub.score.toFixed(2)}
@@ -797,18 +801,33 @@ export default function AdminSection({
                             <AnimatePresence>
                               {isExpanded && (
                                 <tr>
-                                  <td colSpan={6} className="bg-white/[0.01] p-6 border-b border-white/[0.06]">
+                                  <td colSpan={7} className="bg-white/[0.01] p-6 border-b border-white/[0.06]">
                                     <motion.div
                                       initial={{ opacity: 0, height: 0 }}
                                       animate={{ opacity: 1, height: 'auto' }}
                                       exit={{ opacity: 0, height: 0 }}
                                       className="overflow-hidden space-y-4"
                                     >
-                                      <div className="flex items-center justify-between border-b border-white/[0.06] pb-3 text-slate-300">
-                                        <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest">
-                                          Chi tiết bài làm ứng viên: {sub.zaloName}
-                                        </h4>
-                                        <span className="text-[11px] text-slate-500 font-mono">ID: {sub.id}</span>
+                                      <div className="flex flex-col gap-2 border-b border-white/[0.06] pb-3 text-slate-300">
+                                        <div className="flex items-center justify-between">
+                                          <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest">
+                                            Chi tiết bài làm ứng viên: {sub.zaloName}
+                                          </h4>
+                                          <span className="text-[11px] text-slate-500 font-mono">ID: {sub.id}</span>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-400 mt-1 bg-white/[0.02] border border-white/5 rounded-xl px-4 py-2.5">
+                                          <div>
+                                            Thí sinh: <span className="font-bold text-white">{sub.zaloName}</span>
+                                          </div>
+                                          <div className="w-1 h-1 rounded-full bg-slate-700 hidden sm:block"></div>
+                                          <div>
+                                            Email: <span className="font-bold text-white font-mono">{sub.email}</span>
+                                          </div>
+                                          <div className="w-1 h-1 rounded-full bg-slate-700 hidden sm:block"></div>
+                                          <div>
+                                            Số điện thoại: <span className="font-bold text-emerald-400 font-mono">{sub.phoneNumber || 'Chưa đăng ký'}</span>
+                                          </div>
+                                        </div>
                                       </div>
 
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

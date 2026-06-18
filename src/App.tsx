@@ -178,7 +178,7 @@ export default function App() {
   };
 
   // Exam Grading Engine on submit
-  const handleSubmitExam = (zaloName: string, email: string, responses: CandidateResponse[]) => {
+  const handleSubmitExam = (zaloName: string, email: string, phoneNumber: string, responses: CandidateResponse[]) => {
     if (systemSettings.isExamClosed) {
       alert('Đề thi đã đóng. Bạn không thể nộp bài vào lúc này!');
       return;
@@ -205,6 +205,7 @@ export default function App() {
       id: `sub-${Date.now()}`,
       email: cleanEmail,
       zaloName: zaloName.trim(),
+      phoneNumber: phoneNumber.trim(),
       submittedAt: new Date().toISOString(),
       score: Number(totalScore.toFixed(2)),
       breakdown: finalBreakdown

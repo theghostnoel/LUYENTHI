@@ -64,6 +64,7 @@ export interface CandidateSubmission {
   id: string;
   email: string;
   zaloName: string;
+  phoneNumber?: string;
   submittedAt: string; // timestamp
   score: number; // total calculated score
   breakdown: ScoreQuestionBreakdown[];

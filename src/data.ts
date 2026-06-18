@@ -73,6 +73,7 @@ export const INITIAL_SUBMISSIONS: CandidateSubmission[] = [
     id: 'sub-1',
     email: 'nguyenvana@gmail.com',
     zaloName: 'Nguyễn Văn A (Zalo)',
+    phoneNumber: '0912345678',
     submittedAt: '2026-06-17T08:15:00Z',
     score: 6.5, // 2.0 (q1 correct) + 0.5 (3/4 correct on q2) + 2.0 (q3 correct) + 2.0 (q4 correct) + 0.0 (q5 incorrect) = 6.5
     breakdown: [
@@ -129,6 +130,7 @@ export const INITIAL_SUBMISSIONS: CandidateSubmission[] = [
     id: 'sub-2',
     email: 'lethib@yahoo.com',
     zaloName: 'Bình Lê Tiny',
+    phoneNumber: '0987654321',
     submittedAt: '2026-06-17T08:30:00Z',
     score: 8.52, // Let's calculate exactly
     breakdown: [
@@ -185,6 +187,7 @@ export const INITIAL_SUBMISSIONS: CandidateSubmission[] = [
     id: 'sub-3',
     email: 'tranc@outlook.com',
     zaloName: 'Trần Cường Zalo',
+    phoneNumber: '0356123456',
     submittedAt: '2026-06-17T08:20:00Z',
     score: 6.5, // Tie score with Nguyen Van A, but submitted at 08:20:00 (A submitted at 08:15:00)
     // Nguyen Van A should be ranked higher! This tests ranking tie breaker criteria
