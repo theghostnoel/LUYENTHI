@@ -82,11 +82,13 @@ export default function AdminSection({
   
   // Type 1 states
   const [formOptions, setFormOptions] = useState<string[]>(['', '', '', '']);
+  const [formOptionsImages, setFormOptionsImages] = useState<string[]>(['', '', '', '']);
   const [formCorrectAnswerMC, setFormCorrectAnswerMC] = useState('A');
   const [formWeightMC, setFormWeightMC] = useState(1.0);
 
   // Type 2 states
   const [formStatements, setFormStatements] = useState<string[]>(['', '', '', '']);
+  const [formStatementsImages, setFormStatementsImages] = useState<string[]>(['', '', '', '']);
   const [formCorrectAnswersTF, setFormCorrectAnswersTF] = useState<boolean[]>([true, true, true, true]);
 
   // Type 3 states
@@ -182,9 +184,11 @@ export default function AdminSection({
     setFormText('');
     setFormImageUrl('');
     setFormOptions(['', '', '', '']);
+    setFormOptionsImages(['', '', '', '']);
     setFormCorrectAnswerMC('A');
     setFormWeightMC(1.0);
     setFormStatements(['', '', '', '']);
+    setFormStatementsImages(['', '', '', '']);
     setFormCorrectAnswersTF([true, true, true, true]);
     setFormCorrectAnswerShort('');
     setFormWeightShort(1.0);
@@ -200,10 +204,12 @@ export default function AdminSection({
 
     if (q.type === QuestionType.MultipleChoice) {
       setFormOptions([...q.options]);
+      setFormOptionsImages(q.optionsImages ? [...q.optionsImages] : ['', '', '', '']);
       setFormCorrectAnswerMC(q.correctAnswer);
       setFormWeightMC(q.weight);
     } else if (q.type === QuestionType.TrueFalseMatrix) {
       setFormStatements([...q.statements]);
+      setFormStatementsImages(q.statementsImages ? [...q.statementsImages] : ['', '', '', '']);
       setFormCorrectAnswersTF([...q.correctAnswers]);
     } else if (q.type === QuestionType.ShortAnswer) {
       setFormCorrectAnswerShort(q.correctAnswer);
@@ -241,6 +247,7 @@ export default function AdminSection({
         ...questionCommon,
         type: QuestionType.MultipleChoice,
         options: [...formOptions],
+        optionsImages: [...formOptionsImages],
         correctAnswer: formCorrectAnswerMC as 'A' | 'B' | 'C' | 'D',
         weight: Number(formWeightMC)
       };
@@ -260,6 +267,7 @@ export default function AdminSection({
         ...questionCommon,
         type: QuestionType.TrueFalseMatrix,
         statements: [...formStatements],
+        statementsImages: [...formStatementsImages],
         correctAnswers: [...formCorrectAnswersTF]
       };
 
@@ -905,9 +913,19 @@ export default function AdminSection({
                           <p className="text-slate-100 text-sm font-medium leading-relaxed font-sans whitespace-pre-wrap">{q.text}</p>
                           
                           {q.imageUrl && (
-                            <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                              <ImageIcon className="w-3.5 h-3.5" />
-                              <span>Ảnh đi kèm: <a href={q.imageUrl} target="_blank" rel="noreferrer" className="text-indigo-400 hover:underline inline-block truncate max-w-xs">{q.imageUrl}</a></span>
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                                <ImageIcon className="w-3.5 h-3.5" />
+                                <span>Ảnh đi kèm: <a href={q.imageUrl} target="_blank" rel="noreferrer" className="text-indigo-400 hover:underline inline-block truncate max-w-xs">{q.imageUrl}</a></span>
+                              </div>
+                              <div className="max-w-md max-h-48 overflow-hidden rounded-xl bg-black/25 p-2 border border-white/5 flex justify-start">
+                                <img
+                                  src={q.imageUrl}
+                                  alt="Ảnh minh họa câu hỏi"
+                                  referrerPolicy="no-referrer"
+                                  className="max-h-40 object-contain rounded"
+                                />
+                              </div>
                             </div>
                           )}
 
@@ -918,10 +936,18 @@ export default function AdminSection({
                                 {q.options.map((opt, oIdx) => {
                                   const letter = ['A', 'B', 'C', 'D'][oIdx];
                                   const isCorrect = letter === q.correctAnswer;
+                                  const optImg = (q as any).optionsImages?.[oIdx];
                                   return (
-                                    <div key={oIdx} className={`p-2 rounded-xl border flex justify-between gap-2 items-center transition-all ${isCorrect ? 'border-emerald-500/20 bg-emerald-500/[0.04] text-emerald-300 font-bold' : 'border-white/[0.04] text-slate-400 bg-white/[0.01]'}`}>
-                                      <span className="font-mono font-semibold truncate">({letter}) {opt}</span>
-                                      {isCorrect && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                                    <div key={oIdx} className={`p-2 rounded-xl border flex flex-col gap-2 transition-all ${isCorrect ? 'border-emerald-500/20 bg-emerald-500/[0.04] text-emerald-300 font-bold' : 'border-white/[0.04] text-slate-400 bg-white/[0.01]'}`}>
+                                      <div className="flex justify-between gap-2 items-center w-full">
+                                        <span className="font-mono font-semibold truncate">({letter}) {opt}</span>
+                                        {isCorrect && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                                      </div>
+                                      {optImg && (
+                                        <div className="mt-1 w-full max-h-32 overflow-hidden rounded-lg bg-black/20 flex justify-center p-1.5 border border-white/5">
+                                          <img src={optImg} alt={`Option ${letter}`} referrerPolicy="no-referrer" className="max-h-24 object-contain rounded" />
+                                        </div>
+                                      )}
                                     </div>
                                   );
                                 })}
@@ -934,12 +960,20 @@ export default function AdminSection({
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                   {q.statements.map((st, sIdx) => {
                                     const answer = q.correctAnswers[sIdx];
+                                    const stImg = (q as any).statementsImages?.[sIdx];
                                     return (
-                                      <div key={sIdx} className="p-2.5 rounded-xl border border-white/[0.04] text-slate-300 bg-white/[0.01] flex justify-between gap-2">
-                                        <span className="truncate text-slate-400">({String.fromCharCode(97 + sIdx)}) {st}</span>
-                                        <span className={`px-2 py-0.5 rounded-lg border font-mono font-bold text-[10px] ${answer ? 'bg-emerald-500/[0.06] text-emerald-400 border-emerald-500/20' : 'bg-rose-500/[0.06] text-rose-400 border-rose-500/20'}`}>
-                                          {answer ? 'ĐÚNG' : 'SAI'}
-                                        </span>
+                                      <div key={sIdx} className="p-2.5 rounded-xl border border-white/[0.04] text-slate-300 bg-white/[0.01] flex flex-col gap-2">
+                                        <div className="flex justify-between gap-2 items-center w-full">
+                                          <span className="truncate text-slate-400">({String.fromCharCode(97 + sIdx)}) {st}</span>
+                                          <span className={`px-2 py-0.5 rounded-lg border font-mono font-bold text-[10px] ${answer ? 'bg-emerald-500/[0.06] text-emerald-400 border-emerald-500/20' : 'bg-rose-500/[0.06] text-rose-400 border-rose-500/20'}`}>
+                                            {answer ? 'ĐÚNG' : 'SAI'}
+                                          </span>
+                                        </div>
+                                        {stImg && (
+                                          <div className="mt-1 w-full max-h-32 overflow-hidden rounded-lg bg-black/20 flex justify-center p-1.5 border border-white/5">
+                                            <img src={stImg} alt={`Statement ${String.fromCharCode(97 + sIdx)}`} referrerPolicy="no-referrer" className="max-h-24 object-contain rounded" />
+                                          </div>
+                                        )}
                                       </div>
                                     );
                                   })}
@@ -1109,6 +1143,19 @@ export default function AdminSection({
                     onChange={(e) => setFormImageUrl(e.target.value)}
                     className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-xs transition-all duration-200"
                   />
+                  {formImageUrl.trim() && (
+                    <div className="mt-2 w-full max-h-48 overflow-hidden rounded-xl bg-black/25 p-2 border border-white/5 flex justify-center">
+                      <img 
+                        src={formImageUrl.trim()} 
+                        alt="Xem trước ảnh minh họa" 
+                        referrerPolicy="no-referrer" 
+                        className="max-h-40 object-contain rounded"
+                        onError={(e) => {
+                          // Handle broken links gracefully or show placeholder/don't break
+                        }}
+                      />
+                    </div>
+                  )}
                   <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
                     * Lưu ý: Hãy lấy "Link trực tiếp" (Direct Link) từ dịch vụ lưu trữ ảnh (như PostImage, Imgur) để ảnh hiển thị chính xác.
                   </p>
@@ -1122,9 +1169,10 @@ export default function AdminSection({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {formOptions.map((opt, idx) => {
                         const letter = ['A', 'B', 'C', 'D'][idx];
+                        const optImg = formOptionsImages?.[idx];
                         return (
-                          <div key={idx}>
-                            <label className="block text-slate-400 text-[10px] font-mono tracking-wider uppercase mb-1">CÂU LỰA CHỌN {letter} <span className="text-slate-500">*</span></label>
+                          <div key={idx} className="p-3 bg-white/[0.01] rounded-2xl border border-white/5 space-y-2">
+                            <label className="block text-slate-400 text-[10px] font-mono tracking-wider uppercase">CÂU LỰA CHỌN {letter} <span className="text-slate-500">*</span></label>
                             <input
                               id={`input-opt-${letter}`}
                               type="text"
@@ -1138,6 +1186,28 @@ export default function AdminSection({
                               }}
                               className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3 py-2 text-slate-100 placeholder:text-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-xs transition-all duration-200"
                             />
+                            <input
+                              id={`input-opt-img-${letter}`}
+                              type="url"
+                              placeholder={`Link ảnh phương án ${letter} (Tùy chọn)...`}
+                              value={optImg || ''}
+                              onChange={(e) => {
+                                const nextOptImg = [...formOptionsImages];
+                                nextOptImg[idx] = e.target.value;
+                                setFormOptionsImages(nextOptImg);
+                              }}
+                              className="w-full bg-white/[0.01] border border-white/5 rounded-xl px-3 py-1.5 text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-[10px] transition-all duration-200"
+                            />
+                            {optImg && optImg.trim() && (
+                              <div className="mt-1.5 w-full max-h-32 overflow-hidden rounded-lg bg-black/20 flex justify-center p-1 border border-white/5">
+                                <img 
+                                  src={optImg.trim()} 
+                                  alt={`Xem trước ảnh phương án ${letter}`} 
+                                  referrerPolicy="no-referrer" 
+                                  className="max-h-24 object-contain rounded"
+                                />
+                              </div>
+                            )}
                           </div>
                         );
                       })}
@@ -1188,11 +1258,12 @@ export default function AdminSection({
                       {formStatements.map((st, idx) => {
                         const letter = String.fromCharCode(97 + idx);
                         const isTrue = formCorrectAnswersTF[idx];
+                        const statementImg = formStatementsImages?.[idx];
                         
                         return (
-                          <div key={idx} className="p-4 bg-white/[0.02] rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:bg-white/[0.04]">
-                            <div className="flex-1">
-                              <label className="block text-slate-400 text-[10px] font-mono tracking-wider uppercase mb-1">Nhận định ({letter}) <span className="text-rose-500">*</span></label>
+                          <div key={idx} className="p-4 bg-white/[0.02] rounded-2xl border border-white/10 flex flex-col sm:flex-row sm:items-start justify-between gap-4 transition-all hover:bg-white/[0.04]">
+                            <div className="flex-1 space-y-2">
+                              <label className="block text-slate-400 text-[10px] font-mono tracking-wider uppercase">Nhận định ({letter}) <span className="text-rose-500">*</span></label>
                               <input
                                 id={`input-tf-statement-${idx}`}
                                 type="text"
@@ -1206,9 +1277,31 @@ export default function AdminSection({
                                 }}
                                 className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3 py-2 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-xs transition-all duration-200"
                               />
+                              <input
+                                id={`input-tf-statement-img-${idx}`}
+                                type="url"
+                                placeholder={`Link ảnh nhận định ${letter} (Tùy chọn)...`}
+                                value={statementImg || ''}
+                                onChange={(e) => {
+                                  const nextStImg = [...formStatementsImages];
+                                  nextStImg[idx] = e.target.value;
+                                  setFormStatementsImages(nextStImg);
+                                }}
+                                className="w-full bg-white/[0.01] border border-white/5 rounded-xl px-3 py-1.5 text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-[10px] transition-all duration-200"
+                              />
+                              {statementImg && statementImg.trim() && (
+                                <div className="mt-1.5 w-full max-h-32 overflow-hidden rounded-lg bg-black/20 flex justify-start p-1 border border-white/5">
+                                  <img 
+                                    src={statementImg.trim()} 
+                                    alt={`Xem trước ảnh nhận định ${letter}`} 
+                                    referrerPolicy="no-referrer" 
+                                    className="max-h-24 object-contain rounded"
+                                  />
+                                </div>
+                              )}
                             </div>
 
-                            <div className="flex items-center gap-1.5 self-end sm:self-center">
+                            <div className="flex items-center gap-1.5 self-end sm:self-start sm:mt-5">
                               <button
                                 type="button"
                                 id={`btn-tf-correct-${idx}-true`}

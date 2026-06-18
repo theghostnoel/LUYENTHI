@@ -771,25 +771,38 @@ export default function CandidateSection({
                           {q.options.map((option, oIdx) => {
                             const optionChar = ['A', 'B', 'C', 'D'][oIdx];
                             const selected = resp?.multipleChoiceAnswer === optionChar;
+                            const optionImg = q.optionsImages?.[oIdx];
                             return (
                               <button
                                 key={oIdx}
                                 id={`q-${activeQuestionIndex}-opt-${optionChar}`}
                                 onClick={() => handleMultipleChoiceSelect(q.id, optionChar)}
-                                className={`flex items-start gap-4 p-4 rounded-xl border text-left cursor-pointer transition-all duration-300 ${
+                                className={`flex flex-col items-stretch gap-3 p-4 rounded-xl border text-left cursor-pointer transition-all duration-300 ${
                                   selected 
                                     ? 'bg-emerald-500/[0.08] border-emerald-500/40 text-slate-100 shadow-lg shadow-emerald-500/10' 
                                     : 'bg-white/[0.01] hover:bg-white/[0.05] border-white/5 hover:border-white/15 text-slate-300'
                                 }`}
                               >
-                                <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
-                                  selected 
-                                    ? 'bg-emerald-400 text-slate-950' 
-                                    : 'bg-white/[0.06] text-slate-400 border border-white/5'
-                                }`}>
-                                  {optionChar}
-                                </span>
-                                <span className="text-sm pt-0.5 leading-tight">{option}</span>
+                                <div className="flex items-start gap-4">
+                                  <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${
+                                    selected 
+                                      ? 'bg-emerald-400 text-slate-950' 
+                                      : 'bg-white/[0.06] text-slate-400 border border-white/5'
+                                  }`}>
+                                    {optionChar}
+                                  </span>
+                                  <span className="text-sm pt-0.5 leading-tight flex-1">{option}</span>
+                                </div>
+                                {optionImg && (
+                                  <div className="mt-2 w-full max-h-48 overflow-hidden rounded-lg bg-black/20 flex justify-center p-2 border border-white/5 shadow-inner">
+                                    <img 
+                                      src={optionImg} 
+                                      alt={`Lựa chọn ${optionChar}`} 
+                                      referrerPolicy="no-referrer" 
+                                      className="max-h-40 object-contain rounded"
+                                    />
+                                  </div>
+                                )}
                               </button>
                             );
                           })}
@@ -806,39 +819,54 @@ export default function CandidateSection({
                             {q.statements.map((statement, sIdx) => {
                               const currTF = resp?.trueFalseAnswers || [null, null, null, null];
                               const userChoice = currTF[sIdx]; // true, false or null
+                              const statementImg = q.statementsImages?.[sIdx];
                               
                               return (
-                                <div key={sIdx} className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-white/[0.01] transition-colors">
-                                  <div className="flex items-start gap-3 flex-1">
-                                    <span className="flex-shrink-0 text-xs font-mono text-emerald-400 pt-0.5 font-bold">
-                                      {String.fromCharCode(97 + sIdx)}.
-                                    </span>
-                                    <span className="text-slate-200 text-sm leading-relaxed">{statement}</span>
-                                  </div>
+                                <div key={sIdx} className="p-4 flex flex-col gap-4 hover:bg-white/[0.01] transition-colors">
+                                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 w-full">
+                                    <div className="flex items-start gap-3 flex-1">
+                                      <span className="flex-shrink-0 text-xs font-mono text-emerald-400 pt-0.5 font-bold">
+                                        {String.fromCharCode(97 + sIdx)}.
+                                      </span>
+                                      <div className="flex flex-col gap-2 flex-1">
+                                        <span className="text-slate-200 text-sm leading-relaxed">{statement}</span>
+                                        {statementImg && (
+                                          <div className="mt-1.5 max-w-md max-h-48 overflow-hidden rounded-lg bg-black/20 flex justify-start p-2 border border-white/5 shadow-inner">
+                                            <img 
+                                              src={statementImg} 
+                                              alt={`Nhận định ${String.fromCharCode(97 + sIdx)}`} 
+                                              referrerPolicy="no-referrer" 
+                                              className="max-h-40 object-contain rounded"
+                                            />
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
 
-                                  <div className="flex items-center gap-2 self-end md:self-center">
-                                    <button
-                                      id={`q-${activeQuestionIndex}-${sIdx}-true`}
-                                      onClick={() => handleTrueFalseSelect(q.id, sIdx, true)}
-                                      className={`px-4 py-2.5 text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5 transition-all duration-200 border ${
-                                        userChoice === true 
-                                          ? 'bg-emerald-500/[0.08] border-emerald-500/40 text-emerald-300' 
-                                          : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.07] text-slate-400'
-                                      }`}
-                                    >
-                                      Đúng (True)
-                                    </button>
-                                    <button
-                                      id={`q-${activeQuestionIndex}-${sIdx}-false`}
-                                      onClick={() => handleTrueFalseSelect(q.id, sIdx, false)}
-                                      className={`px-4 py-2.5 text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5 transition-all duration-200 border ${
-                                        userChoice === false 
-                                          ? 'bg-rose-500/[0.08] border-rose-500/40 text-rose-300' 
-                                          : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.07] text-slate-400'
-                                      }`}
-                                    >
-                                      Sai (False)
-                                    </button>
+                                    <div className="flex items-center gap-2 self-end md:self-start md:mt-1 shrink-0">
+                                      <button
+                                        id={`q-${activeQuestionIndex}-${sIdx}-true`}
+                                        onClick={() => handleTrueFalseSelect(q.id, sIdx, true)}
+                                        className={`px-4 py-2.5 text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5 transition-all duration-200 border ${
+                                          userChoice === true 
+                                            ? 'bg-emerald-500/[0.08] border-emerald-500/40 text-emerald-300' 
+                                            : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.07] text-slate-400'
+                                        }`}
+                                      >
+                                        Đúng (True)
+                                      </button>
+                                      <button
+                                        id={`q-${activeQuestionIndex}-${sIdx}-false`}
+                                        onClick={() => handleTrueFalseSelect(q.id, sIdx, false)}
+                                        className={`px-4 py-2.5 text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5 transition-all duration-200 border ${
+                                          userChoice === false 
+                                            ? 'bg-rose-500/[0.08] border-rose-500/40 text-rose-300' 
+                                            : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.07] text-slate-400'
+                                        }`}
+                                      >
+                                        Sai (False)
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
                               );

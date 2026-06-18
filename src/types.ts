@@ -15,6 +15,7 @@ export interface QuestionMultipleChoice {
   text: string;
   imageUrl?: string;
   options: string[]; // Must be exactly 4 options
+  optionsImages?: string[]; // Optional 4 image URLs for options
   correctAnswer: string; // 'A', 'B', 'C', or 'D'
   weight: number; // Custom scoring weight
 }
@@ -25,6 +26,7 @@ export interface QuestionTrueFalseMatrix {
   text: string;
   imageUrl?: string;
   statements: string[]; // Must be exactly 4 sub-statements
+  statementsImages?: string[]; // Optional 4 image URLs for statements
   correctAnswers: boolean[]; // Must be exactly 4 booleans (true = Đúng, false = Sai)
 }
 
