@@ -1235,10 +1235,10 @@ export default function AdminSection({
                           id="input-weight-mc"
                           type="number"
                           required
-                          min={0.1}
-                          step={0.1}
+                          min={0.0001}
+                          step="any"
                           value={formWeightMC}
-                          onChange={(e) => setFormWeightMC(Math.max(0.1, Number(e.target.value)))}
+                          onChange={(e) => setFormWeightMC(Number(e.target.value))}
                           className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-xs transition-all duration-200"
                         />
                       </div>
@@ -1367,10 +1367,10 @@ export default function AdminSection({
                           id="input-weight-sa"
                           type="number"
                           required
-                          min={0.1}
-                          step={0.1}
+                          min={0.0001}
+                          step="any"
                           value={formWeightShort}
-                          onChange={(e) => setFormWeightShort(Math.max(0.1, Number(e.target.value)))}
+                          onChange={(e) => setFormWeightShort(Number(e.target.value))}
                           className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-xs transition-all duration-200"
                         />
                       </div>
