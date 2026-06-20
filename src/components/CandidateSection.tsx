@@ -71,22 +71,33 @@ export default function CandidateSection({
   const [lookupResult, setLookupResult] = useState<CandidateSubmission | null>(null);
   const [lookupSearched, setLookupSearched] = useState(false);
 
-  // Initialize empty responses when questions load
+  // Refs to prevent stale closures in interval
+  const submitStateRef = useRef({ zaloName, email, phoneNumber, responses });
   useEffect(() => {
-    const initialResponses = questions.map(q => {
-      if (q.type === QuestionType.MultipleChoice) {
-        return { questionId: q.id, type: q.type, multipleChoiceAnswer: '' };
-      } else if (q.type === QuestionType.TrueFalseMatrix) {
-        return { 
-          questionId: q.id, 
-          type: q.type, 
-          trueFalseAnswers: [null, null, null, null] // null means unanswered
-        };
-      } else {
-        return { questionId: q.id, type: q.type, shortAnswerValue: '' };
-      }
+    submitStateRef.current = { zaloName, email, phoneNumber, responses };
+  }, [zaloName, email, phoneNumber, responses]);
+
+  // Initialize empty responses when questions load, and merge with existing to prevent wipes on real-time syncs
+  useEffect(() => {
+    setResponses(prev => {
+      return questions.map(q => {
+        const existing = prev?.find(r => r.questionId === q.id);
+        if (existing) {
+          return existing;
+        }
+        if (q.type === QuestionType.MultipleChoice) {
+          return { questionId: q.id, type: q.type, multipleChoiceAnswer: '' };
+        } else if (q.type === QuestionType.TrueFalseMatrix) {
+          return { 
+            questionId: q.id, 
+            type: q.type, 
+            trueFalseAnswers: [null, null, null, null] // null means unanswered
+          };
+        } else {
+          return { questionId: q.id, type: q.type, shortAnswerValue: '' };
+        }
+      });
     });
-    setResponses(initialResponses);
   }, [questions]);
 
   // Reset candidate's session/email and return to welcome phase when submissions are deleted/cleared by Admin
@@ -107,25 +118,24 @@ export default function CandidateSection({
 
   // Handle timer countdown
   useEffect(() => {
-    if (timerActive && timeLeft > 0) {
-      timerRef.current = setInterval(() => {
+    if (timerActive) {
+      const interval = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
-            clearInterval(timerRef.current!);
+            clearInterval(interval);
             setTimerActive(false);
-            // Auto submit when time runs out
-            handleAutoSubmit();
+            // Auto submit when time runs out with absolute latest state references
+            const { zaloName: z, email: e, phoneNumber: p, responses: r } = submitStateRef.current;
+            onSubmitExam(z, e, p, r);
+            setGameState('submitted');
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
+      return () => clearInterval(interval);
     }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [timerActive, timeLeft]);
+  }, [timerActive]);
 
   // Convert seconds to MM:SS format
   const formatTime = (seconds: number) => {
@@ -791,8 +801,9 @@ export default function CandidateSection({
 
                     {/* Image space (if exists) */}
                     {q.imageUrl && (
-                      <div className="w-full max-h-80 rounded-2xl overflow-hidden border border-white/10 bg-[#030712]/30 relative group">
+                      <div key={`main-img-wrap-${q.id}-${q.imageUrl}`} className="w-full max-h-80 rounded-2xl overflow-hidden border border-white/10 bg-[#030712]/30 relative group">
                         <img 
+                          key={`main-img-${q.id}-${q.imageUrl}`}
                           src={q.imageUrl} 
                           alt={`Câu hỏi ${activeQuestionIndex + 1}`}
                           className="w-full h-full object-contain max-h-80 mx-auto"
@@ -838,8 +849,9 @@ export default function CandidateSection({
                                   <span className="text-sm pt-0.5 leading-tight flex-1">{option}</span>
                                 </div>
                                 {optionImg && (
-                                  <div className="mt-2 w-full max-h-48 overflow-hidden rounded-lg bg-black/20 flex justify-center p-2 border border-white/5 shadow-inner">
+                                  <div key={`opt-img-wrap-${oIdx}-${optionImg}`} className="mt-2 w-full max-h-48 overflow-hidden rounded-lg bg-black/20 flex justify-center p-2 border border-white/5 shadow-inner">
                                     <img 
+                                      key={`opt-img-${oIdx}-${optionImg}`}
                                       src={optionImg} 
                                       alt={`Lựa chọn ${optionChar}`} 
                                       referrerPolicy="no-referrer" 
@@ -875,8 +887,9 @@ export default function CandidateSection({
                                       <div className="flex flex-col gap-2 flex-1">
                                         <span className="text-slate-200 text-sm leading-relaxed">{statement}</span>
                                         {statementImg && (
-                                          <div className="mt-1.5 max-w-md max-h-48 overflow-hidden rounded-lg bg-black/20 flex justify-start p-2 border border-white/5 shadow-inner">
+                                          <div key={`stmt-img-wrap-${sIdx}-${statementImg}`} className="mt-1.5 max-w-md max-h-48 overflow-hidden rounded-lg bg-black/20 flex justify-start p-2 border border-white/5 shadow-inner">
                                             <img 
+                                              key={`stmt-img-${sIdx}-${statementImg}`}
                                               src={statementImg} 
                                               alt={`Nhận định ${String.fromCharCode(97 + sIdx)}`} 
                                               referrerPolicy="no-referrer" 
